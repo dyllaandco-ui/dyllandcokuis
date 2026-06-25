@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Evaluasi Diri</title>
+    <style>
+        :root {
+            --bg-blue-light: #daecf4;
+            --bg-teal-light: #9fced0;
+            --main-teal: #68b2b5;
+            --navy-text: #2c4464;
+            --blue-accent: #5375a3;
+            --white: #ffffff;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Container disimulasikan seperti layar HP (Mobile-First) */
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            max-height: 850px;
+            background-color: var(--white);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            border-radius: 12px;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            padding: 30px 24px;
+            overflow-y: auto;
+            transition: all 0.4s ease-in-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Utilities & Typography */
+        h1 {
+            color: var(--white);
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        h2 {
+            color: var(--navy-text);
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.4;
+            margin-bottom: 24px;
+        }
+
+        p.subtitle {
+            color: var(--white);
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 24px;
+            opacity: 0.95;
+        }
+
+        /* Custom Soft Buttons */
+        .btn-primary {
+            background-color: rgba(255, 255, 255, 0.9);
+            color: var(--navy-text);
+            border: none;
+            border-radius: 30px;
+            padding: 14px 32px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.2s, background-color 0.2s;
+            text-align: center;
+            width: fit-content;
+            text-decoration: none;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.96);
+            background-color: var(--white);
+        }
+
+        /* SCREEN 1: Welcome */
+        #screen-1 {
+            background-color: var(--blue-accent);
+            background-image: radial-gradient(circle at 30% 20%, var(--bg-blue-light) 0%, var(--blue-accent) 70%);
+            justify-content: space-between;
+        }
+
+        .character-img-large {
+            width: 90%;
+            max-width: 280px;
+            align-self: center;
+            margin-top: auto;
+            object-fit: contain;
+        }
+
+        /* SCREEN 2: Profesi */
+        #screen-2 {
+            background-color: var(--bg-teal-light);
+            background-image: radial-gradient(circle at 50% -10%, var(--bg-blue-light) 0%, var(--bg-teal-light) 80%);
+            justify-content: flex-start;
+        }
+
+        .grid-profesi {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .profesi-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+        .profesi-card:active {
+            transform: scale(0.95);
+        }
+
+        .profesi-thumb {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background-color: #f5f5f5;
+            margin-bottom: 8px;
+            object-fit: cover;
+        }
+
+        .profesi-label {
+            background-color: rgba(218, 236, 244, 0.5);
+            color: var(--navy-text);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 20px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .btn-lainnya {
+            grid-column: span 2;
+            background: var(--white);
+            color: var(--navy-text);
+            text-align: center;
+            padding: 12px;
+            border-radius: 30px;
+            font-weight: 600;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+
+        /* SCREEN 3 & 4: Quiz Layout */
+        .quiz-screen {
+            background-color: var(--bg-teal-light);
+            background-image: radial-gradient(circle at 50% -20%, var(--bg-blue-light) 0%, var(--bg-teal-light) 90%);
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--navy-text);
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .question-block {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .question-text {
+            color: var(--navy-text);
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 16px;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-item {
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            line-height: 1.4;
+        }
+
+        .option-item:hover {
+            border-color: var(--main-teal);
+            background-color: rgba(104, 178, 181, 0.05);
+        }
+
+        .option-item.selected {
+            border-color: var(--main-teal);
+            background-color: var(--main-teal);
+            color: var(--white);
+            font-weight: 500;
+        }
+
+        .btn-next-container {
+            margin-top: auto;
+            padding-top: 10px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .btn-next-quiz {
+            background-color: var(--navy-text);
+            color: var(--white);
+            width: 100%;
+            border-radius: 30px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .btn-next-quiz:disabled {
+            background-color: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* SCREEN 5: Result Screen */
+        #screen-5 {
+            background-color: var(--bg-blue-light);
+            background-image: radial-gradient(circle at 50% 120%, var(--main-teal) 0%, var(--bg-blue-light) 70%);
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .result-box {
+            text-align: center;
+            margin-top: 40px;
+            width: 100%;
+        }
+
+        .score-big {
+            font-size: 80px;
+            font-weight: 800;
+            color: var(--navy-text);
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .grade-label {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--blue-accent);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 20px;
+        }
+
+        .feedback-text {
+            color: var(--navy-text);
+            font-size: 15px;
+            line-height: 1.6;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 20px;
+            border-radius: 16px;
+            backdrop-filter: blur(5px);
+            text-align: left;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+
+        .btn-wa {
+            background-color: #25D366;
+            color: var(--white);
+            width: 100%;
+            text-align: center;
+            padding: 16px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+            display: block;
+            margin-top: auto;
+            transition: transform 0.2s;
+        }
+
+        .btn-wa:active {
+            transform: scale(0.97);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <div id="screen-1" class="screen active">
+            <div>
+                <h1>Hai<br>Selamat Datang!</h1>
+                <p class="subtitle">Kamu selangkah lebih dekat untuk mengenal dirimu. Sudah siap?</p>
+                <button class="btn-primary" onclick="navigateTo('screen-2')">Siap!</button>
+            </div>
+            <img src="Closing black (2).jpg" alt="Welcome Character" class="character-img-large">
+        </div>
+
+        <div id="screen-2" class="screen">
+            <h2>Saat ini apa profesi kamu?</h2>
+            <div class="grid-profesi">
+                <div class="profesi-card" onclick="startQuiz()">
+                    <img src="Closing black (3).jpg" alt="Mahasiswa" class="profesi-thumb">
+                    <div class="profesi-label">Mahasiswa</div>
+                </div>
+                <div class="profesi-card" onclick="startQuiz()">
+                    <img src="Closing black (3).jpg" alt="Pegawai" class="profesi-thumb">
+                    <div class="profesi-label">Pegawai</div>
+                </div>
+                <div class="profesi-card" onclick="startQuiz()">
+                    <img src="Closing black (3).jpg" alt="Start up" class="profesi-thumb">
+                    <div class="profesi-label">Start up</div>
+                </div>
+                <div class="profesi-card" onclick="startQuiz()">
+                    <img src="Closing black (3).jpg" alt="Pemilik Usaha" class="profesi-thumb">
+                    <div class="profesi-label">Pemilik Usaha</div>
+                </div>
+                <div class="btn-lainnya" onclick="startQuiz()">Profesi lain</div>
+            </div>
+        </div>
+
+        <div id="screen-3" class="screen quiz-screen">
+            <div class="quiz-header">Bagian 1 dari 2</div>
+            <div id="questions-container-p1"></div>
+            <div class="btn-next-container">
+                <button id="btn-next-p1" class="btn-next-quiz" disabled onclick="navigateTo('screen-4')">Lanjut</button>
+            </div>
+        </div>
+
+        <div id="screen-4" class="screen quiz-screen">
+            <div class="quiz-header">Bagian 2 dari 2</div>
+            <div id="questions-container-p2"></div>
+            <div class="btn-next-container">
+                <button id="btn-next-p2" class="btn-next-quiz" disabled onclick="calculateAndShowResult()">Lihat Hasil</button>
+            </div>
+        </div>
+
+        <div id="screen-5" class="screen">
+            <div class="result-box">
+                <div class="score-big" id="display-score">0</div>
+                <div class="grade-label" id="display-grade">GRADE</div>
+                <div class="feedback-text" id="display-message">Pesan evaluasi diri Anda...</div>
+            </div>
+            
+            <img src="Closing black (5).jpg" alt="Result Illustration" class="character-img-large" style="max-height: 220px; margin-bottom: 20px;">
+            
+            <a href="https://wa.me/6285257160280?text=informasi%20lebih%20lengkap%20telah%20dikirim%20ke%20WA%20Anda" class="btn-wa" target="_blank">Hubungi via WhatsApp</a>
+        </div>
+
+    </div>
+
+    <script>
+        // Enkapsulasi data kuis di dalam Scope IIFE agar aman & tidak bisa dimanipulasi dari console global
+        const QuizEngine = (function() {
+            const masterQuestions = [
+                {
+                    id: 1,
+                    q: "1. Berapa kali kamu punya jawaban yang tepat di kepala — tapi begitu mau ngomong, udah keburu lewat momentumnya?",
+                    options: [
+                        { text: "A. Hampir tidak pernah — momen selalu berhasil diambil.", score: 4 },
+                        { text: "B. Sesekali — dan biasanya ada alasan yang masuk akal.", score: 3 },
+                        { text: "C. Lumayan sering — dan setelahnya selalu menyesal.", score: 2 },
+                        { text: "D. Sering — dan ini sudah jadi pola yang sulit diputus.", score: 1 }
+                    ]
+                },
+                {
+                    id: 2,
+                    q: "2. Berapa kali setelah percakapan penting selesai, otak kamu baru mendapatkan jawaban atas hal yang perlu dibicarakan tadi?",
+                    options: [
+                        { text: "A. Jarang — yang terucap biasanya sudah cukup mewakili.", score: 4 },
+                        { text: "B. Sesekali — hanya di situasi yang benar-benar tidak terduga.", score: 3 },
+                        { text: "C. Lumayan sering — versi terbaik selalu datang terlambat.", score: 2 },
+                        { text: "D. Hampir setiap kali — sampai mulai ragu sebelum bicara.", score: 1 }
+                    ]
+                },
+                {
+                    id: 3,
+                    q: "3. Berapa kali kamu dengar orang lain ngomong sesuatu yang biasa saja — tapi semua orang di ruangan itu mendengarkan, padahal kamu punya yang lebih baik di kepala?",
+                    options: [
+                        { text: "A. Jarang — biasanya bisa hadir dan didengar dengan baik.", score: 4 },
+                        { text: "B. Pernah — tapi tidak terlalu mengganggu.", score: 3 },
+                        { text: "C. Lumayan sering — dan ini mulai menggerogoti kepercayaan diri.", score: 2 },
+                        { text: "D. Sering — dan sudah lama jadi ganjalan yang belum terpecahkan.", score: 1 }
+                    ]
+                },
+                {
+                    id: 4,
+                    q: "4. Berapa kali kamu masuk ke situasi besar — klien penting, atasan senior, momen krusial — dan tiba-tiba ada sesuatu di dalam yang mengecil sebelum sempat ngomong?",
+                    options: [
+                        { text: "A. Hampir tidak pernah — situasi seperti ini justru yang paling bisa dimanfaatkan.", score: 4 },
+                        { text: "B. Sesekali — masih bisa dikendalikan.", score: 3 },
+                        { text: "C. Lumayan sering — dan itu mempengaruhi cara bicara.", score: 2 },
+                        { text: "D. Sering — dan selalu menyesal dengan cara meresponsnya setelahnya.", score: 1 }
+                    ]
+                },
+                {
+                    id: 5,
+                    q: "5. Berapa kali kamu ketemu peluang — promosi, proyek, klien, deal — tapi kehilangan momen untuk mengungkapkan apa yang seharusnya diungkapkan?",
+                    options: [
+                        { text: "A. Tidak pernah — selalu bisa menunjukkan nilai diri di momen yang penting.", score: 4 },
+                        { text: "B. Mungkin pernah — tapi tidak yakin apakah itu karena komunikasi.", score: 3 },
+                        { text: "C. Pernah — dan ini yang paling sulit untuk diakui.", score: 2 },
+                        { text: "D. Lebih dari sekali — dan ini yang paling mengganjal sampai sekarang.", score: 1 }
+                    ]
+                },
+                {
+                    id: 6,
+                    q: "6. Berapa kali kamu udah paham sesuatu dengan sangat jelas di kepala — tapi pas dijelaskan ke orang lain, yang mereka tangkap beda dari yang dimaksud?",
+                    options: [
+                        { text: "A. Jarang — penjelasan biasanya mudah dipahami.", score: 4 },
+                        { text: "B. Sesekali — dan biasanya langsung bisa dikokeisi.", score: 3 },
+                        { text: "C. Lumayan sering — dan ini yang paling membuat frustrasi.", score: 2 },
+                        { text: "D. Sering — sampai mulai mempertanyakan cara berkomunikasi sendiri.", score: 1 }
+                    ]
+                },
+                {
+                    id: 7,
+                    q: "7. Kalau dipikir jujur — berapa banyak hal yang harusnya sudah kamu dapat, kalau saja kamu bisa ngomong apa yang kamu mau di momen yang tepat?",
+                    options: [
+                        { text: "A. Tidak banyak beda — komunikasi bukan penghalang, justru jadi kekuatan.", score: 4 },
+                        { text: "B. Mungkin ada yang terlewat — tapi tidak terlalu signifikan.", score: 3 },
+                        { text: "C. Cukup beda — ada beberapa hal besar yang harusnya sudah lebih jauh.", score: 2 },
+                        { text: "D. Jauh berbeda — dan ini yang paling berat untuk dipikirkan.", score: 1 }
+                    ]
+                }
+            ];
+
+            // Menyimpan index pilihan user secara aman terenkapsulasi
+            let userAnswers = {}; 
+
+            return {
+                getQuestionsPage1: function() { return masterQuestions.slice(0, 3); },
+                getQuestionsPage2: function() { return masterQuestions.slice(3, 7); },
+                setAnswer: function(qId, optionIdx) {
+                    userAnswers[qId] = optionIdx;
+                },
+                checkPageComplete: function(pageIdx) {
+                    if(pageIdx === 1) {
+                        return.every(id => userAnswers[id] !== undefined);
+                    } else if(pageIdx === 2) {
+                        return.every(id => userAnswers[id] !== undefined);
+                    }
+                    return false;
+                },
+                calculateScore: function() {
+                    let total = 0;
+                    masterQuestions.forEach(q => {
+                        const selectedOptIdx = userAnswers[q.id];
+                        if(selectedOptIdx !== undefined) {
+                            total += q.options[selectedOptIdx].score;
+                        }
+                    });
+                    return total;
+                },
+                getGradeData: function(score) {
+                    if (score >= 23 && score <= 28) {
+                        return {
+                            grade: "Superstar",
+                            msg: "Kemampuan komunikasi sudah di atas rata-rata. Yang menarik — biasanya belum tahu pola apa yang membuat ini bekerja. Kalau tahu, dampaknya bisa jauh lebih besar dari yang dibayangkan."
+                        };
+                    } else if (score >= 15 && score <= 22) {
+                        return {
+                            grade: "Hatching",
+                            msg: "Ada kekuatan yang nyata. Tapi ada juga titik yang selama ini menahan — dan biasanya yang paling tidak disadari."
+                        };
+                    } else {
+                        return {
+                            grade: "The Redundant",
+                            msg: "Yang menahan bukan kurangnya kemampuan. Lebih sering soal pola yang sudah terlalu lama dianggap wajar — dan dari situlah semua peluang yang lewat itu berasal."
+                        };
+                    }
+                }
+            };
+        })();
+
+        // Sistem Navigasi Halaman Halaman
+        function navigateTo(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            // Auto scroll top tiap pindah halaman
+            document.getElementById(screenId).scrollTop = 0;
+        }
+
+        function startQuiz() {
+            navigateTo('screen-3');
+        }
+
+        // Render Komponen Kuis secara Dinamis & Aman
+        function renderQuiz() {
+            const containerP1 = document.getElementById('questions-container-p1');
+            const containerP2 = document.getElementById('questions-container-p2');
+
+            // Render Page 1 Quiz (Q1-Q3)
+            QuizEngine.getQuestionsPage1().forEach(q => {
+                containerP1.appendChild(createQuestionElement(q, 1));
+            });
+
+            // Render Page 2 Quiz (Q4-Q7)
+            QuizEngine.getQuestionsPage2().forEach(q => {
+                containerP2.appendChild(createQuestionElement(q, 2));
+            });
+        }
+
+        function createQuestionElement(qData, pageIdx) {
+            const block = document.createElement('div');
+            block.className = 'question-block';
+            
+            const qText = document.createElement('div');
+            qText.className = 'question-text';
+            qText.innerText = qData.q;
+            block.appendChild(qText);
+
+            const optionsList = document.createElement('div');
+            optionsList.className = 'options-list';
+
+            qData.options.forEach((opt, idx) => {
+                const optItem = document.createElement('div');
+                optItem.className = 'option-item';
+                optItem.innerText = opt.text;
+                
+                // Event saat opsi dipilih
+                optItem.onclick = function() {
+                    // Bersihkan seleksi pada pertanyaan ini
+                    optionsList.querySelectorAll('.option-item').forEach(el => el.classList.remove('selected'));
+                    // Tambah kelas selected pada item terpilih
+                    optItem.classList.add('selected');
+                    
+                    // Simpan ke state engine privat
+                    QuizEngine.setAnswer(qData.id, idx);
+                    
+                    // Cek validasi tombol lanjut hlaman
+                    validateNextButton(pageIdx);
+                };
+                optionsList.appendChild(optItem);
+            });
+
+            block.appendChild(optionsList);
+            return block;
+        }
+
+        function validateNextButton(pageIdx) {
+            const isComplete = QuizEngine.checkPageComplete(pageIdx);
+            if(pageIdx === 1) {
+                document.getElementById('btn-next-p1').disabled = !isComplete;
+            } else if(pageIdx === 2) {
+                document.getElementById('btn-next-p2').disabled = !isComplete;
+            }
+        }
+
+        // Hitung Skor Akhir & Tampilkan Hasil
+        function calculateAndShowResult() {
+            const finalScore = QuizEngine.calculateScore();
+            const resultData = QuizEngine.getGradeData(finalScore);
+
+            // Set data visual ke halaman grade
+            document.getElementById('display-score').innerText = finalScore;
+            document.getElementById('display-grade').innerText = resultData.grade;
+            document.getElementById('display-message').innerText = resultData.msg;
+
+            // Alihkan ke Page Hasil akhir
+            navigateTo('screen-5');
+        }
+
+        // Inisialisasi awal saat aplikasi dibuka
+        window.onload = function() {
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>

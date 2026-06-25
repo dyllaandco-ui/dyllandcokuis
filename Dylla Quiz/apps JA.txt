@@ -1,0 +1,136 @@
+const questions = [
+
+"Berapa kali kamu punya jawaban yang tepat di kepala — tapi begitu mau ngomong, udah keburu lewat momentumnya?",
+
+"Berapa kali setelah percakapan penting selesai, otak kamu baru mendapatkan jawaban atas hal yang perlu dibicarakan tadi?",
+
+"Berapa kali kamu dengar orang lain ngomong sesuatu yang biasa saja — tapi semua orang di ruangan itu mendengarkan?",
+
+"Berapa kali kamu masuk ke situasi besar dan tiba-tiba ada sesuatu di dalam yang mengecil sebelum sempat ngomong?",
+
+"Berapa kali kamu ketemu peluang tapi kehilangan momen untuk mengungkapkan apa yang seharusnya diungkapkan?",
+
+"Berapa kali kamu udah paham sesuatu dengan sangat jelas di kepala tapi pas dijelaskan ke orang lain hasilnya berbeda?",
+
+"Kalau dipikir jujur, berapa banyak hal yang harusnya sudah kamu dapat kalau saja kamu bisa ngomong di momen yang tepat?"
+
+];
+
+const optionText = [
+["A",4],
+["B",3],
+["C",2],
+["D",1]
+];
+
+let score=0;
+
+function buildQuestion(index){
+
+let html=`
+<div class="question">
+<h3>${index+1}. ${questions[index]}</h3>
+`;
+
+optionText.forEach(o=>{
+html+=`
+<label class="option">
+<input
+type="radio"
+name="q${index}"
+value="${o[1]}">
+${o[0]}
+</label>
+`;
+});
+
+html+=`</div>`;
+
+return html;
+}
+
+document.getElementById("questionPage1").innerHTML=
+buildQuestion(0)+
+buildQuestion(1)+
+buildQuestion(2);
+
+document.getElementById("questionPage2").innerHTML=
+buildQuestion(3)+
+buildQuestion(4)+
+buildQuestion(5)+
+buildQuestion(6);
+
+function nextPage(id){
+
+document.querySelectorAll(".page")
+.forEach(p=>p.classList.remove("active"));
+
+document
+.getElementById(id)
+.classList.add("active");
+}
+
+function goQuiz2(){
+
+for(let i=0;i<3;i++){
+
+const val=
+document.querySelector(
+`input[name=q${i}]:checked`
+);
+
+if(!val){
+alert("Jawab semua pertanyaan");
+return;
+}
+}
+
+nextPage("quiz2");
+}
+
+function finishQuiz(){
+
+score=0;
+
+for(let i=0;i<7;i++){
+
+const val=
+document.querySelector(
+`input[name=q${i}]:checked`
+);
+
+if(!val){
+alert("Jawab semua pertanyaan");
+return;
+}
+
+score+=parseInt(val.value);
+}
+
+let grade="";
+
+if(score>=23){
+grade="Superstar";
+}
+else if(score>=15){
+grade="Hatching";
+}
+else{
+grade="The Redundant";
+}
+
+document.getElementById("scoreNumber")
+.innerText=score;
+
+document.getElementById("gradeText")
+.innerText=grade;
+
+document.getElementById("waBtn")
+.href=
+"https://wa.me/6285257160280?text="+
+encodeURIComponent(
+"informasi lebih lengkap telah dikirim ke WA Anda"
+);
+
+nextPage("result");
+}
